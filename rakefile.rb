@@ -15,6 +15,7 @@ RedistDirName = "redist"
 BitsquidRevision = "r0"
 UpstreamVersion = "1.14.0"
 ProductName = "openal-soft-#{UpstreamVersion}-#{BitsquidRevision}"
+DylibName = "libopenal.dylib"
 
 # --------------------------------------------------
 # Utility functions.
@@ -28,7 +29,7 @@ def configure_redist_dir(output, zip_file_name)
 	output.from "."
 	output.to File.join(working_dir, zip_file_name)
 	
-	output.file "build/libopenal.#{UpstreamVersion}.dylib", :as => "lib/libopenal.dylib"
+	output.file "build/libopenal.#{UpstreamVersion}.dylib", :as => "lib/#{DylibName}"
 	output.dir "include"
 	output.file "COPYING"
 	output.file "README"
@@ -56,6 +57,7 @@ desc "Build"
 task :build => :clean do |task|
 	Dir.chdir("build") do
 		system %(CFLAGS="-m32" cmake .. && make)
+		system %(install_name_tool -id @loader_path/#{DylibName} libopenal.#{UpstreamVersion}.dylib)
 	end
 end
 
